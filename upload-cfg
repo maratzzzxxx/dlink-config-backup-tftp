@@ -1,0 +1,81 @@
+#!/usr/bin/env expect
+
+if {[llength $argv] != 5} {
+    puts "usage: upload-cfg IP USERNAME PASSWORD TFTP_SERVER DATE"
+    exit 1
+}
+    
+    set IP              [lindex $argv 0]
+    set USERNAME        [lindex $argv 1]
+    set PASSWORD        [lindex $argv 2]
+    set TFTP_SERVER     [lindex $argv 3]
+    set DATE            [lindex $argv 4]
+    
+    spawn telnet $IP
+    set timeout 5
+
+    expect {
+
+      "Name or service not known" {
+          puts "Name or service not known\r"
+          close
+          wait
+          exit 1
+      }
+
+      "Invalid argument" {
+          puts "Invalid argument\r"
+          close
+          wait
+          exit 1
+      }
+
+      -re {login:|username:|UserName:} {
+          # Got it!
+      }
+
+      timeout {
+          puts "Timed out\r"
+          close
+          wait
+          exit 1
+        }
+    }
+
+    send "$USERNAME\r"
+    expect -nocase {password:}
+    send "$PASSWORD\r"
+    expect {
+        "DES-1210-52" {
+            send "upload cfg_toTFTP tftp://$TFTP_SERVER/SW-$IP-$DATE.cfg\r"
+            
+            send "upload cfg_toTFTP $TFTP_SERVER SW-$IP-$DATE.cfg\r"
+        }
+        
+        "DES-1210-28" {
+            send "upload cfg_toTFTP $TFTP_SERVER SW-$IP-$DATE.cfg\r"
+            
+            send "upload cfg_toTFTP tftp://$TFTP_SERVER/SW-$IP-$DATE.cfg\r"
+        }
+        
+        "DGS-1210-24" {
+            send "upload cfg_toTFTP tftp://$TFTP_SERVER/SW-$IP-$DATE.cfg\r"
+            
+            send "upload cfg_toTFTP $TFTP_SERVER SW-$IP-$DATE.cfg\r"
+        }
+
+        timeout {
+            puts "Unable to log in\r"
+            close
+            wait
+            exit 1
+        }
+    }
+
+    expect {[#>]}
+    puts "Time to logout"
+    expect {[#>]}
+    send "logout\r"
+    close
+    wait
+    exit
