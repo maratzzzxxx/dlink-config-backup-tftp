@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+DATE=`date +"%Y-%m-%d"`
+LOG_DIR="/tmp"
+PATH_SWITCH_LIST="switches.lst"
+
+while IFS='' read -r SWITCHS_INFO || [[ -n "$SWITCHS_INFO" ]]; do
+
+    SWITCHE_info=(${SWITCHS_INFO//:/ })
+
+    ./upload-cfg ${SWITCHE_info[0]} ${SWITCHE_info[1]} ${SWITCHE_info[2]} ${SWITCHE_info[3]} $DATE
+    
+    #need review
+    echo "backup_${SWITCHE_info[0]}_$DATE" >> $LOG_DIR/switch_${SWITCHE_info[0]}_$DATE.log
+
+    sleep 2
+done < $PATH_SWITCH_LIST
