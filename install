@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+mkdir -p $HOME/bin
+cp backup-sw $HOME/bin
+cp upload-cfg $HOME/bin
+chmod u+x $HOME/bin/backup-sw
+chmod u+x $HOME/bin/upload-cfg
+export PATH=$PATH:$HOME/bin
+echo 'export PATH=$PATH:$HOME/bin' >> $HOME/.bashrc
+:> $HOME/.switches.lst

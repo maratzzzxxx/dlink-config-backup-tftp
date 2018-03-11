@@ -1,10 +1,37 @@
+#!/usr/bin/env bash
+
+echo "please enter the absolute path of backup folder: "
+read dir_path
+
+if [ ! -d "$PATH" ]; then
+    mkdir -p $PATH
+fi
+
 yum install -y expect
 yum install -y telnet
 yum install -y tftp-server tftp
 adduser tftpd
-chown tftpd:tftpd /media/backup/sw/
+chown tftpd:tftpd $PATH
 iptables -I INPUT -p udp --dport 69 -j ACCEPT
 service iptables save
+
+tee tftp << EOF
+service tftp
+{
+    socket_type= dgram
+    protocol= udp
+    wait=yes
+    user=root
+    server= /usr/sbin/in.tftpd
+    server_args= -c -p -u tftpd -U 117 -s $dir_path
+    server_args= -s /1
+    disable= no
+    per_source= 11
+    cps= 100 2
+    flags= IPv4
+}
+EOF
+
 cp tftp /etc/xinetd.d/tftp
 service xinetd restart
 chkconfig xinetd on
