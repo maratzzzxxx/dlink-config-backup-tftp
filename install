@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+mkdir -p $HOME/bin
+file="$HOME/bin/backup-sw"
+
+if [ -f "$file" ]
+then
+    echo ""
+    echo "already installed"
+    echo "Please remove these files manually"
+    echo ""
+    echo -e "\t$HOME/bin/backup-sw"
+    echo -e "\t$HOME/bin/upload-cfg"
+    echo -e "\t$HOME/bin/$HOME/.switches.lst"
+    echo ""
+    echo 'And this line export PATH=$PATH:$HOME/bin' " $HOME/.bashrc"
+else
+    cp backup-sw $HOME/bin
+    cp upload-cfg $HOME/bin
+    chmod u+x $HOME/bin/backup-sw
+    chmod u+x $HOME/bin/upload-cfg
+    export PATH=$PATH:$HOME/bin
+    echo 'export PATH=$PATH:$HOME/bin' >> $HOME/.bashrc
+    :> $HOME/.switches.lst
+fi
+
